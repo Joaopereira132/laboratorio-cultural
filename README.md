@@ -5,6 +5,12 @@ Plataforma web para gerir e divulgar a atividade cultural de uma comunidade acad
 > Projeto académico desenvolvido em dupla (João Pereira e Samuel Gomes) na unidade curricular de *Linguagens e Paradigmas de Programação* — Licenciatura em Engenharia Informática, ISPGAYA (2025/2026).
 > Esta versão inclui uma revisão posterior de segurança e de qualidade de código (ver [O que foi melhorado](#o-que-foi-melhorado-após-a-entrega)).
 
+## Pré-visualização
+
+| Página inicial | Painel de administração |
+|---|---|
+| ![Página inicial](docs/home.png) | ![Painel de administração](docs/admin.png) |
+
 ## Funcionalidades
 
 **Frontoffice**

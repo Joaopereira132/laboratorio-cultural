@@ -672,6 +672,7 @@
 </div>
 {% endfor %}
 {% endif %}
+{% if cargo == 'super_admin' %}
 
 <div id="modalNovoUser" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
     <div style="background-color: white; padding: 30px; border-radius: 12px; width: 460px; max-width: 90%; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border-top: 6px solid #991b1b; position: relative;">
@@ -706,7 +707,6 @@
     </div>
 </div>
 
-{% if cargo == 'super_admin' %}
 {% for user in utilizadores %}
 <div id="modalEditarUser{{ user.id }}" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; padding: 20px;">
     <div style="background: white; padding: 30px; border-radius: 12px; width: 460px; max-width: 100%; position: relative; border-top: 5px solid #991b1b; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
