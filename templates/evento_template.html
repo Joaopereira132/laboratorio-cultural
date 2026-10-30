@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}{{ evento.titulo }} - Lab Cultural{% endblock %}
+
+{% block breadcrumb %}
+<div style="padding: 1.5rem 8% 0 8%; background-color: #ffffff; color: #6b7280; font-size: 0.85rem; font-weight: 600;">
+    <a href="/lab_cultural" style="text-decoration: none; color: #6b7280;" onmouseover="this.style.color='#F39200'" onmouseout="this.style.color='#6b7280'">Início</a> 
+    <span style="margin: 0 8px; color: #d1d5db;">/</span> 
+    <a href="/lab_cultural" style="text-decoration: none; color: #6b7280;" onmouseover="this.style.color='#F39200'" onmouseout="this.style.color='#6b7280'">Lab Cultural</a>
+    <span style="margin: 0 8px; color: #d1d5db;">/</span> 
+    <a href="/{{ evento.categoria }}" style="text-decoration: none; color: #6b7280; text-transform: capitalize;" onmouseover="this.style.color='#F39200'" onmouseout="this.style.color='#6b7280'">Clube de {{ evento.categoria|capitalize }}</a>
+    <span style="margin: 0 8px; color: #d1d5db;">/</span> 
+    <span style="color: #1a1a1a;">{{ evento.titulo }}</span>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="background-color: #ffffff; min-height: 75vh; padding: 4rem 15%;">
+    <div style="max-width: 900px; margin: 0 auto;">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div style="padding: 18px; margin-bottom: 30px; border-radius: 8px; font-size: 0.95rem; font-weight: 600; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+                        {% if category == 'danger' %} background-color: #fde8e8; color: #9b1c1c; border: 1px solid #f8b4b4;
+                        {% else %} background-color: #def7ec; color: #03543f; border: 1px solid #bcf0da; {% endif %}">
+                        
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <i class="fas {% if category == 'danger' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %}"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                        
+                        {% if category == 'success' and google_cal_url and not session.get('user_id') %}
+                        <a href="{{ google_cal_url }}" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; background-color: #03543f; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; width: fit-content; font-weight: 700; transition: 0.2s;" onmouseover="this.style.backgroundColor='#023e2f'" onmouseout="this.style.backgroundColor='#03543f'">
+                            <i class="fab fa-google"></i> Adicionar ao Google Calendar
+                        </a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 40px;">
+            
+            <div>
+                <span style="background-color: #F39200; color: white; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase;">
+                    Sessão de {{ evento.categoria }}
+                </span>
+
+                <h1 style="font-size: 2.5rem; font-weight: 900; color: #1a1a1a; margin-top: 15px; margin-bottom: 20px;">
+                    {{ evento.titulo }}
+                </h1>
+                {% if evento.imagem_url %}
+                <div style="margin: 20px 0; overflow: hidden; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+                    <img src="{{ evento.imagem_url }}" alt="{{ evento.titulo }}" style="width: 100%; max-height: 400px; object-fit: cover; display: block;">
+                </div>
+                {% endif %}
+
+                <div style="font-size: 1.1rem; line-height: 1.7; color: #4b5563; white-space: pre-line;">
+                    {{ evento.descricao if evento.descricao else 'Sem descrição adicional disponível para este evento.' }}
+                </div>
+            </div>
+
+            <div style="background: #f9fafb; border: 1px solid #e5e7eb; padding: 25px; border-radius: 12px; height: fit-content;">
+                <h3 style="margin-top: 0; font-size: 1.1rem; text-transform: uppercase; color: #1a1a1a; letter-spacing: 0.05em; margin-bottom: 20px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
+                    Detalhes da Sessão
+                </h3>
+                
+                <p style="font-size: 0.95rem; color: #4b5563;"><i class="fas fa-clock" style="color: #F39200; width: 20px;"></i> {{ evento.data_evento }}</p>
+                <p style="font-size: 0.95rem; color: #4b5563;"><i class="fas fa-map-marker-alt" style="color: #F39200; width: 20px;"></i> {{ evento.local }}</p>
+                <p style="font-size: 0.95rem; color: #4b5563; margin-bottom: 25px;"><i class="fas fa-users" style="color: #F39200; width: 20px;"></i> Vagas: <strong>{{ evento.vagas_ocupadas }} / {{ evento.vagas_totais }}</strong></p>
+
+                {% if session.get('user_id') %}
+                    {% if ja_inscrito %}
+                        <button disabled style="width: 100%; background-color: #10b981; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 700; cursor: not-allowed; margin-bottom: 10px;">
+                            <i class="fas fa-check-circle"></i> Já estás inscrito
+                        </button>
+                        
+                        <a href="{{ google_cal_url }}" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background-color: #4285F4; color: white; padding: 12px; border-radius: 6px; font-weight: 700; text-decoration: none; font-size: 0.9rem; box-sizing: border-box; transition: 0.2s;" onmouseover="this.style.backgroundColor='#357ae8'" onmouseout="this.style.backgroundColor='#4285F4'">
+                            <i class="fab fa-google"></i> Adicionar ao Calendário
+                        </a>
+                    {% else %}
+                        <form action="/inscrever/{{ evento.id }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" style="width: 100%; background-color: #F39200; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 700; cursor: pointer; transition: 0.2s;">
+                                Garantir Vaga
+                            </button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    
+                    <a href="{{ url_for('login') }}" style="display: block; text-align: center; background-color: #1a1a1a; color: white; padding: 12px; border-radius: 6px; font-weight: 700; text-decoration: none; font-size: 0.9rem; margin-bottom: 10px;">
+                        Inicia sessão (Comunidade académica)
+                    </a>
+                    
+                    <div style="text-align: center; margin: 15px 0;">
+                        <span style="font-size: 0.75rem; color: #9ca3af; text-transform: uppercase; font-weight: 800;">Ou</span>
+                    </div>
+
+                    <button type="button" id="btnAbrirGuest{{ evento.id }}" onclick="document.getElementById('areaGuest{{ evento.id }}').style.display='block'; this.style.display='none';" style="width: 100%; background-color: #F39200; color: #1a1a1a; border: none; padding: 12px; border-radius: 6px; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: 0.2s;">
+                        Ingressar como Convidado
+                    </button>
+                    
+                    <div id="areaGuest{{ evento.id }}" style="display: none; background: #ffffff; padding: 18px; border-radius: 8px; border: 1px solid #e5e7eb; text-align: left; margin-top: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+                        <h4 style="margin-top: 0; margin-bottom: 12px; font-size: 0.95rem; font-weight: 800; color: #1a1a1a;">Inscrição Sem Conta</h4>
+                        
+                        <form action="{{ url_for('inscrever_convidado', evento_id=evento.id) }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <div style="margin-bottom: 12px;">
+                                <label style="font-size: 0.8rem; font-weight: 700; display: block; margin-bottom: 4px; color: #4b5563;">Nome Completo</label>
+                                <input type="text" name="nome_convidado" required placeholder="Ex: Rita Santos" style="width: 100%; padding: 9px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; background: #f9fafb; font-size: 0.9rem;">
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label style="font-size: 0.8rem; font-weight: 700; display: block; margin-bottom: 4px; color: #4b5563;">E-mail de Contacto</label>
+                                <input type="email" name="email_convidado" required placeholder="rita@exemplo.com" style="width: 100%; padding: 9px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; background: #f9fafb; font-size: 0.9rem;">
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <button type="button" onclick="document.getElementById('areaGuest{{ evento.id }}').style.display='none'; document.getElementById('btnAbrirGuest{{ evento.id }}').style.display='block';" style="flex: 1; background: #e5e7eb; color: #4b5563; border: none; padding: 10px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 0.85rem;">
+                                    Cancelar
+                                </button>
+                                <button type="submit" style="flex: 1; background: #1a1a1a; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 0.85rem;">
+                                    Confirmar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

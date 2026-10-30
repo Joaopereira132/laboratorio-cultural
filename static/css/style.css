@@ -1,0 +1,406 @@
+/* --- IDENTIDADE VISUAL --- */
+:root {
+    --lab-orange: #F39200;
+    --lab-dark: #1A1A1A;
+    --lab-light-gray: #F3F4F6;
+    --lab-border: #E5E7EB;
+    --white: #FFFFFF;
+    --max-width: 1400px;
+}
+
+/* --- RESET & TIPOGRAFIA --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Open Sans', 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+    background-color: var(--white);
+    color: #374151;
+    line-height: 1.6;
+}
+
+/* --- HEADER (IGUAL AO PRINT) --- */
+header {
+    background-color: var(--lab-dark);
+    color: var(--white);
+    padding: 1rem 8%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 4px solid var(--lab-orange);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+header .logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+header nav a {
+    color: var(--white);
+    text-decoration: none;
+    margin-left: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: 0.3s;
+}
+
+header nav a:hover {
+    color: var(--lab-orange);
+}
+
+/* --- TÍTULOS COM BARRA LARANJA --- */
+h1, h2 {
+    color: var(--lab-dark);
+    border-left: 6px solid var(--lab-orange);
+    padding-left: 15px;
+    margin-bottom: 25px;
+    font-weight: 800;
+}
+
+/* --- CONTAINER & GRIDS --- */
+.container {
+    width: 90%;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* --- CARDS (ESTILO DO PRINT) --- */
+.card {
+    background: var(--white);
+    border: 1px solid var(--lab-border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border-color: var(--lab-orange);
+}
+
+.card-img {
+    background-color: #E5E7EB;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9CA3AF;
+    font-weight: bold;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-body h3 {
+    margin-bottom: 10px;
+    color: var(--lab-dark);
+}
+
+/* --- BOTÕES --- */
+.btn {
+    display: inline-block;
+    background-color: var(--lab-orange);
+    color: var(--white);
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background-color: var(--lab-dark);
+}
+
+/* --- FORMULÁRIOS & FILTROS --- */
+.filter-bar, form {
+    background: var(--lab-light-gray);
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid var(--lab-border);
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    margin-bottom: 15px;
+    border: 1px solid var(--lab-border);
+    border-radius: 6px;
+    font-size: 1rem;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--lab-orange);
+    box-shadow: 0 0 0 3px rgba(243, 146, 0, 0.2);
+}
+
+/* --- FOOTER REESTRUTURADO --- */
+footer {
+    background-color: #0d141d; /* Azul escuro original */
+    color: var(--white);
+    padding: 60px 8% 20px 8%;
+    margin-top: 50px;
+    border-top: 4px solid var(--lab-orange);
+    text-align: left; /* Garante que o texto não fique centralizado */
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.footer-column {
+    flex: 1;
+    min-width: 200px;
+}
+
+.footer-column h3 {
+    font-size: 1.1rem;
+    color: var(--white);
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    border: none; /* Remove a barra laranja dos títulos aqui */
+    padding: 0;
+}
+
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+}
+
+.footer-column ul li {
+    margin-bottom: 12px;
+}
+
+/* Ajuste dos links para não ficarem azuis */
+.footer-column a {
+    color: #bdc3c7; 
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: 0.3s;
+}
+
+.footer-column a:hover {
+    color: var(--lab-orange);
+    text-decoration: underline;
+}
+
+.footer-column p {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    color: #ffffff;
+}
+
+/* Barra inferior de direitos autorais */
+.footer-bottom {
+    margin-top: 50px;
+    padding-top: 20px;
+    border-top: 1px solid #2c3e50;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: #7f8c8d;
+}
+
+.footer-bottom a {
+    color: #7f8c8d;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+/* Ajuste para ícones e logos ISO */
+.iso-logos {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+    font-weight: bold;
+    font-size: 0.7rem;
+}
+
+/* Estilo específico para o link "Saber Mais" */
+.btn-saber-mais {
+    display: inline-block;
+    margin-top: 15px;
+    color: #F39200; /* Laranja - Agora bem visível */
+    font-weight: 800; /* Texto mais grosso para destacar */
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    transition: 0.3s;
+}
+
+.btn-saber-mais:hover {
+    color: #1A1A1A; /* Muda para preto/escuro ao passar o rato */
+    text-decoration: underline;
+    transform: translateX(5px); /* Pequena animação para a direita */
+}
+
+.site-footer {
+    background-color: var(--lab-dark);
+    color: var(--white);
+    padding: 60px 8% 20px 8%;
+    margin-top: 50px;
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 40px;
+    max-width: var(--max-width);
+    margin: 0 auto;
+}
+
+.footer-column h3 {
+    color: var(--lab-orange);
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    font-size: 1rem;
+}
+
+.footer-column ul { list-style: none; }
+.footer-column ul li { margin-bottom: 10px; }
+.footer-column a { color: #ccc; text-decoration: none; transition: 0.3s; }
+.footer-column a:hover { color: var(--lab-orange); }
+
+.footer-logo-img {
+    height: 60px;
+    filter: brightness(0) invert(1); /* Torna o logo branco se for escuro */
+}
+
+/* --- ESTILOS PARA O DROPDOWN DO UTILIZADOR --- */
+.user-dropdown {
+    position: relative;
+    display: inline-block;
+    margin-left: 15px;
+}
+
+.user-name {
+    color: #F39200;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    padding: 10px 0; /* Dá espaço para o rato não "fugir" */
+}
+
+/* A caixa escondida que tem os links */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    right: 0; /* Alinha a caixa à direita do nome */
+    background-color: #1A1A1A; /* Fundo escuro igual ao teu menu */
+    min-width: 180px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+    z-index: 100;
+    border-radius: 0 0 8px 8px; /* Arredonda só em baixo */
+    border-top: 3px solid #F39200; /* Linha laranja para dar estilo */
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+/* O design de cada link dentro da caixa */
+.dropdown-content a {
+    color: white !important;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block !important;
+    text-align: left;
+    margin: 0 !important;
+    font-size: 0.9rem;
+    transition: background 0.3s;
+    text-transform: none; /* Tira as maiúsculas dos links da lista */
+}
+
+/* Os ícones ao lado do texto */
+.dropdown-content a i {
+    width: 20px;
+    color: #F39200;
+    margin-right: 5px;
+}
+
+/* Quando passas o rato num dos links da lista */
+.dropdown-content a:hover {
+    background-color: #333;
+    color: #F39200 !important;
+}
+
+/* A MÁGICA: Mostra a lista quando o rato passa por cima do nome */
+.user-dropdown:hover .dropdown-content {
+    display: block;
+}
+
+
+/* --- ESTILOS DO MODAL --- */
+.modal {
+    display: none; /* Escondido por defeito */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.8); /* Fundo escuro com transparência */
+    backdrop-filter: blur(5px); /* Efeito de desfoque moderno */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 800px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    position: relative;
+    overflow: hidden;
+    animation: modalAparecer 0.3s;
+}
+
+@keyframes modalAparecer {
+    from {top: -50px; opacity: 0}
+    to {top: 0; opacity: 1}
+}
+
+.fechar-modal {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 15px;
+    margin-right: 20px;
+}
+
+.fechar-modal:hover,
+.fechar-modal:focus {
+    color: #F39200;
+    text-decoration: none;
+}

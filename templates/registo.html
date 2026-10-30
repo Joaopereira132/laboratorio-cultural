@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Conta | Lab Cultural</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .register-card {
+            max-width: 450px;
+            width: 100%;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid #eeeeee;
+            border-top: 5px solid #F39200;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+        }
+
+        h2 {
+            color: #1A1A1A;
+            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .form-label {
+            color: #555555;
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            color: #333;
+            box-sizing: border-box;
+            margin-bottom: 18px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: #F39200;
+            outline: none;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: #1A1A1A;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 800;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.3s;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+            margin-top: 5px;
+        }
+
+        .btn-submit:hover {
+            background: #F39200;
+            color: #1A1A1A;
+        }
+    </style>
+</head>
+<body>
+
+    <div style="margin-bottom: 20px; text-align: center;">
+        <h1 style="color: #1A1A1A; font-weight: 800; margin: 0;">
+            LAB <span style="color: #F39200; font-weight: 300;">| CULTURAL</span>
+        </h1>
+    </div>
+
+    <div class="register-card">
+        <h2>Criar Nova Conta</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div style="padding: 12px; margin-bottom: 20px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-align: center;
+                        {% if category == 'danger' %} background-color: #fde8e8; color: #9b1c1c; border: 1px solid #f8b4b4;
+                        {% else %} background-color: #def7ec; color: #03543f; border: 1px solid #bcf0da; {% endif %}">
+                        <i class="fas {% if category == 'danger' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %}"></i> {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('registo') }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            
+            <label class="form-label">Nome Completo</label>
+            <input type="text" name="nome_real" class="form-input" required placeholder="Ex: Samuel Gomes">
+
+            <label class="form-label">Endereço de E-mail</label>
+            <input type="email" name="email" class="form-input" required placeholder="Email">
+
+            <label class="form-label">Palavra-passe</label>
+            <input type="password" name="password" class="form-input" required placeholder="••••••••" minlength="6">
+
+            <label class="form-label">Confirmar Palavra-passe</label>
+            <input type="password" name="password_confirm" class="form-input" required placeholder="••••••••" minlength="6">
+
+            <button type="submit" class="btn-submit">Registar Conta</button>
+        </form>
+
+        <div style="margin-top: 25px; text-align: center; border-top: 1px solid #eeeeee; padding-top: 15px;">
+            <p style="margin: 0; font-size: 0.85rem; color: #666;">
+                Já tens uma conta ativa? 
+                <a href="{{ url_for('login') }}" style="color: #F39200; text-decoration: none; font-weight: 700; margin-left: 3px;">Inicia Sessão &rarr;</a>
+            </p>
+        </div>
+    </div>
+
+    <p style="color: #ccc; font-size: 0.75rem; margin-top: 30px;">
+        &copy; 2026 Laboratório Cultural
+    </p>
+
+</body>
+</html>

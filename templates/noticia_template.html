@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}{{ noticia.titulo }} - Lab Cultural{% endblock %}
+
+{% block breadcrumb %}
+<div style="padding: 1.5rem 8% 0 8%; background-color: #ffffff; color: #6b7280; font-size: 0.85rem; font-weight: 600;">
+    <a href="/lab_cultural" style="text-decoration: none; color: #6b7280;">Início</a> 
+    <span style="margin: 0 8px; color: #d1d5db;">/</span> 
+    <a href="/lab_cultural" style="text-decoration: none; color: #6b7280;">Lab Cultural</a>
+    <span style="margin: 0 8px; color: #d1d5db;">/</span> 
+    <a href="/{{ noticia.categoria }}" style="text-decoration: none; color: #6b7280; text-transform: capitalize;">{{ noticia.categoria }}</a>
+    <span style="margin: 0 8px; color: #d1d5db;">/</span> 
+    <span style="color: #1a1a1a;">{{ noticia.titulo[:30] }}...</span>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="background-color: #ffffff; min-height: 75vh; padding: 4rem 15%;">
+    <div style="max-width: 800px; margin: 0 auto;">
+        
+        <span style="background-color: #1a1a1a; color: #F39200; padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;">
+            Clube de {{ noticia.categoria }}
+        </span>
+
+        <h1 style="font-size: 2.8rem; font-weight: 900; color: #1a1a1a; margin-top: 15px; margin-bottom: 10px; line-height: 1.15;">
+            {{ noticia.titulo }}
+        </h1>
+
+        <div style="color: #6b7280; font-size: 0.95rem; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #e5e7eb; display: flex; gap: 20px;">
+            <span><i class="fas fa-user"></i> Por: <strong>{{ noticia.autor if noticia.autor else 'Administrador' }}</strong></span>
+            <span><i class="fas fa-calendar-alt"></i> {{ noticia.data_publicacao }}</span>
+        </div>
+
+        {% if noticia.imagem_url %}
+        <div style="margin: 20px 0; border-radius: 8px; overflow: hidden;">
+            <img src="{{ noticia.imagem_url }}" alt="{{ noticia.titulo }}" style="width: 100%; max-height: 400px; object-fit: cover;">
+        </div>
+        {% endif %}
+
+        <div style="font-size: 1.15rem; line-height: 1.75; color: #374151; white-space: pre-line;">
+            {{ noticia.conteudo }}
+        </div>
+
+        <div style="margin-top: 50px; border-top: 1px solid #e5e7eb; padding-top: 20px;">
+            <a href="/{{ noticia.categoria if noticia.categoria in ['leitura', 'teatro'] else 'lab_cultural' }}" style="color: #F39200; text-decoration: none; font-weight: 700;">
+                &larr; Voltar para a página do Clube
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

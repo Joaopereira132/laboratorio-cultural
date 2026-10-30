@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}O Meu Perfil - Lab Cultural{% endblock %}
+
+{% block breadcrumb %}
+<div style="padding: 1.5rem 8% 0 8%; background-color: #ffffff; color: #6b7280; font-size: 0.85rem; font-weight: 600;">
+    <a href="/lab_cultural" style="text-decoration: none; color: #6b7280;" onmouseover="this.style.color='#F39200'" onmouseout="this.style.color='#6b7280'">Início</a> 
+    <span style="margin: 0 8px; color: #d1d5db;">/</span> 
+    <span style="color: #1a1a1a;">Meu Perfil</span>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="background-color: #ffffff; color: #1a1a1a; font-family: sans-serif; min-height: 80vh; padding: 3rem 8%;">
+    
+    <div style="border-l-width: 6px; border-left: 6px solid #F39200; padding-left: 20px; margin-bottom: 3rem;">
+        <h1 style="font-size: 2.5rem; font-weight: 900; margin: 0 0 5px 0; color: #1a1a1a; tracking-tight: -0.025em;">
+            Área Pessoal
+        </h1>
+        <p style="color: #4b5563; font-size: 1rem; margin: 0;">
+            Gere as tuas informações de acesso e acompanha os eventos da comunidade onde tens lugar reservado.
+        </p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div style="padding: 15px; margin-bottom: 25px; border-radius: 8px; font-size: 0.95rem; font-weight: 600;
+                    {% if category == 'danger' %} background-color: #fde8e8; color: #9b1c1c; border: 1px solid #f8b4b4;
+                    {% else %} background-color: #def7ec; color: #03543f; border: 1px solid #bcf0da; {% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 4rem; align-items: start;">
+        
+        <section style="background: #f9fafb; border: 1px solid #e5e7eb; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+            <h2 style="font-size: 1.3rem; font-weight: 800; margin-top: 0; margin-bottom: 20px; color: #1a1a1a; border-b: 2px solid #e5e7eb; padding-bottom: 10px;">
+                <i class="fas fa-user-edit" style="color: #F39200; margin-right: 8px;"></i> Meus Dados
+            </h2>
+            
+            <form action="{{ url_for('perfil') }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div style="margin-bottom: 15px;">
+                    <label style="font-weight: 700; display: block; margin-bottom: 6px; font-size: 0.85rem; color: #4b5563;">Nome Completo</label>
+                    <input type="text" name="nome_real" value="{{ utilizador.nome_real }}" required style="width: 100%; padding: 11px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; background: white;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="font-weight: 700; display: block; margin-bottom: 6px; font-size: 0.85rem; color: #4b5563;">Endereço de E-mail</label>
+                    <input type="email" name="email" value="{{ utilizador.email }}" required style="width: 100%; padding: 11px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; background: white;">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="font-weight: 700; display: block; margin-bottom: 4px; font-size: 0.85rem; color: #4b5563;">Nova Palavra-passe</label>
+                    <span style="font-size: 0.75rem; color: #9ca3af; display: block; margin-bottom: 6px;">(Deixa em branco caso não queiras alterar a password atual)</span>
+                    <input type="password" name="password" placeholder="••••••••" style="width: 100%; padding: 11px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; background: white;">
+                </div>
+
+                <div style="margin-bottom: 15px; background: #e5e7eb; padding: 10px 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.8rem; font-weight: 700; color: #4b5563; text-transform: uppercase;">Nível de Acesso</span>
+                    <span style="background: #1a1a1a; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">
+                        {{ utilizador.role }}
+                    </span>
+                </div>
+
+                <button type="submit" style="width: 100%; background-color: #1a1a1a; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: 0.2s;" onmouseover="this.style.backgroundColor='#F39200'; this.style.color='#1a1a1a';" onmouseout="this.style.backgroundColor='#1a1a1a'; this.style.color='white';">
+                    Atualizar Perfil
+                </button>
+            </form>
+        </section>
+
+        <section>
+            <h2 style="font-size: 1.3rem; font-weight: 800; margin-top: 0; margin-bottom: 25px; color: #1a1a1a; border-b: 2px solid #e5e7eb; padding-bottom: 10px;">
+                <i class="fas fa-calendar-check" style="color: #F39200; margin-right: 8px;"></i> Minhas Inscrições
+            </h2>
+
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                {% for evento in eventos %}
+                <div style="display: flex; justify-content: space-between; align-items: center; background: #f9fafb; border: 1px solid #e5e7eb; padding: 20px; border-radius: 8px;">
+                    <div>
+                        <span style="display: inline-block; background-color: #1a1a1a; color: #ffffff; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; margin-bottom: 6px;">
+                            {{ evento.categoria }}
+                        </span>
+                        <h3 style="font-size: 1.1rem; font-weight: 800; margin: 0 0 5px 0; color: #1a1a1a;">{{ evento.titulo }}</h3>
+                        <div style="font-size: 0.85rem; color: #6b7280; font-weight: 600;">
+                            <span>📅 {{ evento.data_evento.strftime('%d/%m/%Y') if evento.data_evento else 'Brevemente' }}</span>
+                            <span style="margin-left: 15px;">📍 {{ evento.local }} {% if evento.cidade %}({{ evento.cidade }}){% endif %}</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <span style="background-color: #def7ec; color: #03543f; border: 1px solid #bcf0da; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase;">
+                            Confirmada
+                        </span>
+                    </div>
+                </div>
+                {% else %}
+                <div style="text-align: center; color: #6b7280; font-style: italic; padding: 40px; background: #f9fafb; border-radius: 8px; border: 1px dashed #ddd;">
+                    Ainda não estás inscrito em nenhum ensaio ou evento cultural.
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+    </div>
+</div>
+{% endblock %}

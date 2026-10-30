@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratório Cultural</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind-utilities.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lab_home.css') }}">
+</head>
+<body style="background-color: #ffffff; color: #1a1a1a; font-family: sans-serif; margin: 0; padding: 0; antialiased: true;">
+
+    <header style="background-color: #ffffff; color: #1a1a1a; padding: 1.25rem 8%; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #F39200; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+        
+        <div style="font-size: 1.5rem; font-weight: 900; tracking-tight: -0.025em; color: #1a1a1a;">
+            Lab <span style="color: #F39200;">|</span> <span style="font-weight: 400; color: #4b5563;">Cultural</span>
+        </div>
+        
+        <nav style="display: flex; align-items: center; gap: 25px;">
+            <a href="/lab_cultural" style="color: #F39200; text-decoration: none; font-size: 0.875rem; font-weight: 800; text-transform: uppercase; border-b: 2px solid #F39200; padding-bottom: 4px;">Início</a>
+            <a href="/leitura" style="color: #1a1a1a; text-decoration: none; font-size: 0.875rem; font-weight: 600; text-transform: uppercase; transition: 0.3s;" onmouseover="this.style.color='#F39200'" onmouseout="this.style.color='#1a1a1a'">Leitura</a>
+            <a href="/teatro" style="color: #1a1a1a; text-decoration: none; font-size: 0.875rem; font-weight: 600; text-transform: uppercase; transition: 0.3s;" onmouseover="this.style.color='#F39200'" onmouseout="this.style.color='#1a1a1a'">Teatro</a>
+            <a href="/externos" style="color: #1a1a1a; text-decoration: none; font-size: 0.875rem; font-weight: 600; text-transform: uppercase; transition: 0.3s;" onmouseover="this.style.color='#F39200'" onmouseout="this.style.color='#1a1a1a'">Externos</a>
+            
+            {% if session.get('user') %}
+                <div class="user-dropdown" style="position: relative; display: inline-block; margin-left: 10px;">
+                    <div style="color: #F39200; font-size: 0.875rem; font-weight: 800; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        Olá, {{ session.get('nome_real').split()[0] if session.get('nome_real') else 'Utilizador' }}
+                        <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                    </div>
+                    
+                    <div class="dropdown-content" style="display: none; position: absolute; right: 0; top: 100%; background-color: #ffffff; min-width: 180px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-radius: 8px; border: 1px solid #e5e7eb; z-index: 1000; overflow: hidden; margin-top: 0px;">
+                        
+                        <a href="{{ url_for('perfil') }}" style="display: block; padding: 12px 16px; color: #1a1a1a; text-decoration: none; font-size: 0.85rem; font-weight: 600; border-bottom: 1px solid #f3f4f6; transition: 0.2s;" onmouseover="this.style.backgroundColor='#f9fafb'; this.style.color='#F39200'" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#1a1a1a'">
+                            <i class="fas fa-user" style="width: 20px; color: #9ca3af;"></i> Meu Perfil
+                        </a>
+                        
+                        {% if session.get('role') in ['super_admin', 'admin_leitura', 'admin_teatro'] %}
+                        <a href="/admin" style="display: block; padding: 12px 16px; color: #1a1a1a; text-decoration: none; font-size: 0.85rem; font-weight: 600; border-bottom: 1px solid #f3f4f6; transition: 0.2s;" onmouseover="this.style.backgroundColor='#f9fafb'; this.style.color='#F39200'" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#1a1a1a'">
+                            <i class="fas fa-cog" style="width: 20px; color: #9ca3af;"></i> Painel Admin
+                        </a>
+                        {% endif %}
+                        
+                        <form action="{{ url_for('logout') }}" method="POST" style="margin: 0;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" style="width: 100%; text-align: left; background: none; border: none; cursor: pointer; font-family: inherit; display: block; padding: 12px 16px; color: #dc3545; text-decoration: none; font-size: 0.85rem; font-weight: 700; transition: 0.2s;" onmouseover="this.style.backgroundColor='#fdf2f2'" onmouseout="this.style.backgroundColor='transparent'"><i class="fas fa-sign-out-alt" style="width: 20px;"></i> Sair</button></form>
+                    </div>
+                </div>
+            {% else %}
+                <a href="/login" style="color: #1a1a1a; text-decoration: none; font-size: 0.875rem; font-weight: 600; text-transform: uppercase; transition: 0.3s;" onmouseover="this.style.color='#F39200'" onmouseout="this.style.color='#1a1a1a'">Login</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    <section style="background-color: #f9fafb; color: #1a1a1a; padding: 6rem 8%; position: relative; overflow: hidden; border-b: 1px solid #e5e7eb;" class="reveal-section">
+        <div style="max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 3rem; align-items: center; position: relative; z-index: 10;">
+            
+            <div>
+                <span style="display: inline-block; background-color: #1a1a1a; color: #ffffff; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; tracking-widest: 0.1em; padding: 0.5rem 1rem; border-radius: 9999px; margin-bottom: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    Cultura & Academia
+                </span>
+                
+                <h1 style="font-size: 3.25rem; font-weight: 900; line-height: 1.15; tracking-tight: -0.05em; color: #1a1a1a; margin-bottom: 1.5rem;">
+                    O Teu Polo Cultural <br>no <span style="color: #F39200;">teu campus</span>.
+                </h1>
+                
+                <p style="color: #4b5563; font-size: 1.125rem; line-height: 1.6; margin-bottom: 2.5rem; max-width: 540px;">
+                    Explora a expressão dramática, descobre novas leituras e acompanha todas as conferências e eventos artísticos promovidos pela nossa comunidade académica.
+                </p>
+                
+                <div>
+                    <a href="#pilares" style="display: inline-block; background-color: #F39200; color: #1a1a1a; padding: 1rem 2.25rem; border-radius: 8px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; text-decoration: none; letter-spacing: 0.05em; transition: 0.3s; border: 2px solid #F39200; box-shadow: 0 4px 12px rgba(243, 146, 0, 0.15);" onmouseover="this.style.backgroundColor='#1a1a1a'; this.style.borderColor='#1a1a1a'; this.style.color='#ffffff';" onmouseout="this.style.backgroundColor='#F39200'; this.style.borderColor='#F39200'; this.style.color='#1a1a1a';">
+                        Explorar Atividades ↓
+                    </a>
+                </div>
+            </div>
+            
+            <div style="display: flex; justify-content: center; align-items: center; position: relative;">
+                <div style="position: absolute; width: 320px; height: 320px; background-color: #F39200; opacity: 0.08; filter: blur(50px); border-radius: 50%;"></div>
+                
+                <div style="font-size: 8.5rem; select-none: none; user-select: none; filter: drop-shadow(0 20px 13px rgba(0,0,0,0.03)) drop-shadow(0 8px 5px rgba(0,0,0,0.08));" class="animate-float">
+                    🎭
+                </div>
+            </div>
+
+        </div>
+
+        <div style="position: absolute; inset: 0; z-index: 1; opacity: 0.4; pointer-events: none;">
+            <svg width="100%" height="100%"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#e5e7eb" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#grid)"/></svg>
+        </div>
+    </section>
+
+    <section style="background-color: #ffffff; padding: 5rem 8%;">
+        <div style="max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 4rem; align-items: center;">
+            <div>
+                <h2 style="font-size: 2rem; font-weight: 900; color: #1a1a1a; margin-top: 0; margin-bottom: 1.5rem;">Missão e Objetivos</h2>
+                <p style="color: #4b5563; font-size: 1.1rem; line-height: 1.7; margin-bottom: 1.5rem;">
+                    O Laboratório Cultural tem como missão principal democratizar o acesso à cultura e às artes, estimulando o espírito crítico, a criatividade e o envolvimento cívico da nossa comunidade.
+                </p>
+                <ul style="list-style: none; padding: 0; color: #4b5563; line-height: 2;">
+                    <li><i class="fas fa-check" style="color: #F39200; margin-right: 10px;"></i> <strong>Promover o talento:</strong> Criar um espaço seguro para a expressão artística.</li>
+                    <li><i class="fas fa-check" style="color: #F39200; margin-right: 10px;"></i> <strong>Criar ligações:</strong> Estabelecer pontes sólidas com entidades culturais da região.</li>
+                    <li><i class="fas fa-check" style="color: #F39200; margin-right: 10px;"></i> <strong>Formação humana:</strong> Desenvolver competências transversais (soft skills).</li>
+                </ul>
+            </div>
+            
+            <div style="position: relative;">
+                <div style="position: absolute; top: -15px; left: -15px; right: 15px; bottom: 15px; background-color: #F39200; border-radius: 12px; z-index: 0;"></div>
+                <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&q=80&w=800" alt="Ambiente Cultural e Artístico" style="width: 100%; border-radius: 12px; position: relative; z-index: 1; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: block;">
+            </div>
+        </div>
+    </section>
+
+    <section style="background-color: #f9fafb; padding: 5rem 8%; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">
+        <div style="max-width: 1280px; margin: 0 auto;">
+            <div style="text-align: center; margin-bottom: 3.5rem;">
+                <h2 style="font-size: 2.25rem; font-weight: 900; color: #1a1a1a; margin: 0 0 10px 0;">Em Destaque</h2>
+                <p style="color: #6b7280; font-size: 1.1rem; margin: 0;">Não percas os próximos grandes eventos na nossa agenda.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2.5rem;">
+                {% for evento in eventos_destaque %}
+                <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 25px; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.02);" onmouseover="this.style.borderColor='#F39200'; this.style.transform='translateY(-5px)'" onmouseout="this.style.borderColor='#e5e7eb'; this.style.transform='translateY(0)'">
+                    
+                    <span style="display: inline-block; background-color: #1a1a1a; color: white; padding: 5px 12px; border-radius: 4px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 0.05em;">
+                        {{ evento.categoria }}
+                    </span>
+                    
+                    <h3 style="font-size: 1.3rem; font-weight: 800; color: #1a1a1a; margin-top: 0; margin-bottom: 12px; line-height: 1.3;">
+                        {{ evento.titulo }}
+                    </h3>
+                    
+                    <div style="color: #6b7280; font-size: 0.9rem; margin-bottom: 20px; display: flex; flex-direction: column; gap: 6px;">
+                        <span><i class="fas fa-calendar-alt" style="color: #F39200; width: 16px;"></i> {{ evento.data_evento.strftime('%d/%m/%Y - %H:%M') if evento.data_evento else 'A definir' }}</span>
+                        <span><i class="fas fa-map-marker-alt" style="color: #F39200; width: 16px;"></i> {{ evento.local }}</span>
+                    </div>
+                    
+                    <a href="{{ url_for('evento_detalhe', id=evento.id) }}" style="display: block; text-align: center; background-color: #F39200; color: #1a1a1a; padding: 10px; border-radius: 6px; font-size: 0.9rem; font-weight: 800; text-decoration: none; text-transform: uppercase; transition: 0.2s;" onmouseover="this.style.backgroundColor='#1a1a1a'; this.style.color='white'" onmouseout="this.style.backgroundColor='#F39200'; this.style.color='#1a1a1a'">
+                        Ver Detalhes
+                    </a>
+                </div>
+                {% else %}
+                <div style="grid-column: 1 / -1; text-align: center; background: white; border: 1px dashed #d1d5db; border-radius: 12px; padding: 3rem; color: #6b7280;">
+                    <i class="fas fa-calendar-times" style="font-size: 2rem; color: #d1d5db; margin-bottom: 15px;"></i>
+                    <p style="margin: 0; font-size: 1.1rem;">Ainda não existem eventos futuros agendados.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+
+        
+        <div style="text-align: center; margin-bottom: 4rem;">
+            <span style="color: #F39200; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 10px;">
+                Atividades Nucleares
+            </span>
+            <h2 style="font-size: 2.75rem; font-weight: 900; color: #1a1a1a; margin: 0; letter-spacing: -0.02em;">
+                Explora os Nossos Clubes
+            </h2>
+            <div style="height: 4px; width: 60px; background-color: #F39200; margin: 20px auto 0 auto; border-radius: 2px;"></div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2.5rem; align-items: center;">
+
+            <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 40px 30px; text-align: center; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.02); position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-10px)'; this.style.boxShadow='0 20px 25px -5px rgba(0,0,0,0.1)'; this.style.borderColor='#F39200';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.02)'; this.style.borderColor='#e5e7eb';">
+                
+                <div style="width: 80px; height: 80px; background-color: #fff7ed; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto;">
+                    <i class="fas fa-book-open" style="font-size: 2.5rem; color: #F39200;"></i>
+                </div>
+                
+                <h3 style="font-size: 1.5rem; font-weight: 800; color: #1a1a1a; margin-bottom: 15px;">Clube de Leitura</h3>
+                
+                <p style="color: #4b5563; font-size: 1rem; line-height: 1.6; margin-bottom: 30px;">
+                    Participa em debates literários, partilha opiniões sobre obras clássicas e contemporâneas e descobre novos autores na nossa comunidade.
+                </p>
+                
+                <a href="/leitura" style="display: inline-block; background-color: #1a1a1a; color: white; padding: 12px 24px; border-radius: 6px; font-weight: 700; text-transform: uppercase; text-decoration: none; font-size: 0.85rem; transition: 0.2s;" onmouseover="this.style.backgroundColor='#F39200'; this.style.color='#1a1a1a'" onmouseout="this.style.backgroundColor='#1a1a1a'; this.style.color='white'">
+                    Ver Sessões &rarr;
+                </a>
+            </div>
+
+            <div style="background: #1a1a1a; border: 1px solid #1a1a1a; border-radius: 12px; padding: 50px 30px; text-align: center; transition: all 0.3s ease; box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative; overflow: hidden; transform: scale(1.05); z-index: 10;" onmouseover="this.style.transform='scale(1.05) translateY(-10px)';" onmouseout="this.style.transform='scale(1.05) translateY(0)';">
+                
+                <div style="position: absolute; top: 20px; right: -35px; background: #F39200; color: #1a1a1a; padding: 5px 40px; transform: rotate(45deg); font-size: 0.7rem; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">
+                    Popular
+                </div>
+
+                <div style="width: 80px; height: 80px; background-color: rgba(243, 146, 0, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto;">
+                    <i class="fas fa-theater-masks" style="font-size: 2.5rem; color: #F39200;"></i>
+                </div>
+                
+                <h3 style="font-size: 1.6rem; font-weight: 800; color: #ffffff; margin-bottom: 15px;">Clube de Teatro</h3>
+                
+                <p style="color: #9ca3af; font-size: 1rem; line-height: 1.6; margin-bottom: 30px;">
+                    Descobre a arte da representação dramática, participa em workshops de voz e movimento, e atua nas produções oficiais do instituto.
+                </p>
+                
+                <a href="/teatro" style="display: inline-block; background-color: #F39200; color: #1a1a1a; padding: 12px 24px; border-radius: 6px; font-weight: 800; text-transform: uppercase; text-decoration: none; font-size: 0.85rem; transition: 0.2s; border: 2px solid #F39200;" onmouseover="this.style.backgroundColor='transparent'; this.style.color='#F39200'" onmouseout="this.style.backgroundColor='#F39200'; this.style.color='#1a1a1a'">
+                    Entrar em Palco &rarr;
+                </a>
+            </div>
+
+            <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 40px 30px; text-align: center; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.02); position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-10px)'; this.style.boxShadow='0 20px 25px -5px rgba(0,0,0,0.1)'; this.style.borderColor='#F39200';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.02)'; this.style.borderColor='#e5e7eb';">
+                
+                <div style="width: 80px; height: 80px; background-color: #fff7ed; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto;">
+                    <i class="fas fa-map-marked-alt" style="font-size: 2.5rem; color: #F39200;"></i>
+                </div>
+                
+                <h3 style="font-size: 1.5rem; font-weight: 800; color: #1a1a1a; margin-bottom: 15px;">Eventos Externos</h3>
+                
+                <p style="color: #4b5563; font-size: 1rem; line-height: 1.6; margin-bottom: 30px;">
+                    Fica a par da nossa agenda cultural fora do campus: conferências, visitas a museus, exposições de arte e parcerias com a cidade.
+                </p>
+                
+                <a href="/externos" style="display: inline-block; background-color: #1a1a1a; color: white; padding: 12px 24px; border-radius: 6px; font-weight: 700; text-transform: uppercase; text-decoration: none; font-size: 0.85rem; transition: 0.2s;" onmouseover="this.style.backgroundColor='#F39200'; this.style.color='#1a1a1a'" onmouseout="this.style.backgroundColor='#1a1a1a'; this.style.color='white'">
+                    Consultar Agenda &rarr;
+                </a>
+            </div>
+
+        </div>
+    <main id="pilares" style="max-width: 1280px; margin: 10 auto 0rem auto; padding: 6rem 8%;"></main>
+
+    {% include '_footer.html' %}
+
+    <script src="{{ url_for('static', filename='js/lab_effects.js') }}"></script>
+</body>
+</html>

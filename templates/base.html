@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Laboratório Cultural{% endblock %}</title>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind-utilities.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        .nav-link {
+            color: #1a1a1a;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover {
+            color: #F39200;
+        }
+        .admin-badge {
+            background-color: #F39200;
+            color: #1a1a1a;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-decoration: none;
+        }
+        .admin-badge:hover {
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body style="background-color: #ffffff; color: #1a1a1a; font-family: sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; min-height: 100vh;">
+
+    <header style="background-color: #ffffff; color: #1a1a1a; padding: 1.25rem 8%; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #F39200; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+        
+        <div style="font-size: 1.5rem; font-weight: 900; tracking-tight: -0.025em; color: #1a1a1a;">
+            Lab <span style="color: #F39200;">|</span> <span style="font-weight: 400; color: #4b5563;">Cultural</span>
+        </div>
+        
+        <nav style="display: flex; align-items: center; gap: 25px;">
+            <a href="/lab_cultural" class="nav-link">Início</a>
+            <a href="/leitura" class="nav-link">Leitura</a>
+            <a href="/teatro" class="nav-link">Teatro</a>
+            <a href="/externos" class="nav-link">Eventos</a>
+
+            {% if session.get('user') %}
+                <div class="user-dropdown" style="position: relative; display: inline-block; margin-left: 10px;">
+                    <div style="color: #F39200; font-size: 0.875rem; font-weight: 800; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        Olá, {{ session.get('nome_real').split()[0] if session.get('nome_real') else 'Utilizador' }}
+                        <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                    </div>
+                    
+                    <div class="dropdown-content" style="display: none; position: absolute; right: 0; top: 100%; background-color: #ffffff; min-width: 180px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-radius: 8px; border: 1px solid #e5e7eb; z-index: 1000; overflow: hidden; margin-top: 0px;">
+                        
+                        <a href="{{ url_for('perfil') }}" style="display: block; padding: 12px 16px; color: #1a1a1a; text-decoration: none; font-size: 0.85rem; font-weight: 600; border-bottom: 1px solid #f3f4f6; transition: 0.2s;" onmouseover="this.style.backgroundColor='#f9fafb'; this.style.color='#F39200'" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#1a1a1a'">
+                            <i class="fas fa-user" style="width: 20px; color: #9ca3af;"></i> Meu Perfil
+                        </a>
+                        
+                        {% if session.get('role') in ['super_admin', 'admin_leitura', 'admin_teatro'] %}
+                        <a href="/admin" style="display: block; padding: 12px 16px; color: #1a1a1a; text-decoration: none; font-size: 0.85rem; font-weight: 600; border-bottom: 1px solid #f3f4f6; transition: 0.2s;" onmouseover="this.style.backgroundColor='#f9fafb'; this.style.color='#F39200'" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#1a1a1a'">
+                            <i class="fas fa-cog" style="width: 20px; color: #9ca3af;"></i> Painel Admin
+                        </a>
+                        {% endif %}
+                        
+                        <form action="{{ url_for('logout') }}" method="POST" style="margin: 0;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" style="width: 100%; text-align: left; background: none; border: none; cursor: pointer; font-family: inherit; display: block; padding: 12px 16px; color: #dc3545; text-decoration: none; font-size: 0.85rem; font-weight: 700; transition: 0.2s;" onmouseover="this.style.backgroundColor='#fdf2f2'" onmouseout="this.style.backgroundColor='transparent'"><i class="fas fa-sign-out-alt" style="width: 20px;"></i> Sair</button></form>
+                    </div>
+                </div>
+            {% else %}
+                <a href="/login" class="nav-link">Login</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    {% block breadcrumb %}{% endblock %}
+
+    <main style="flex: 1 0 auto;">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include '_footer.html' %}
+
+</body>
+</html>

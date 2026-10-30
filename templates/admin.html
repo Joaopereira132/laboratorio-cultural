@@ -1,0 +1,893 @@
+{% extends "base.html" %}
+
+{% block title %}Área de Gestão - Lab Cultural{% endblock %}
+
+{% block content %}
+<div style="display: flex; min-height: 85vh; font-family: sans-serif; background-color: #f3f4f6;">
+    
+    <aside style="width: 260px; background-color: #1a1a1a; color: white; padding: 2rem 1rem; flex-shrink: 0; box-shadow: 2px 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <div style="margin-bottom: 2rem; padding-left: 0.5rem;">
+                <h2 style="font-size: 1.25rem; font-weight: 900; margin: 0; tracking-tight: -0.025em;">
+                    Navegação <span style="color: #F39200;">|</span> Admin
+                </h2>
+                <p style="color: #9ca3af; font-size: 0.8rem; margin: 5px 0 0 0;">Painel Integrado de Gestão</p>
+            </div>
+
+            <nav style="display: flex; flex-direction: column; gap: 8px;">
+                <button onclick="alternarTabela('sec_eventos', this)" class="btn-sidebar active-sidebar">
+                    <i class="fas fa-calendar-alt" style="width: 20px; margin-right: 8px;"></i> Eventos Culturais
+                </button>
+                
+                <button onclick="alternarTabela('sec_noticias', this)" class="btn-sidebar">
+                    <i class="fas fa-newspaper" style="width: 20px; margin-right: 8px;"></i> Notícias & Avisos
+                </button>
+
+                {% if cargo in ['super_admin', 'admin_leitura'] %}
+                <button onclick="alternarTabela('sec_livros', this)" class="btn-sidebar">
+                    <i class="fas fa-book" style="width: 20px; margin-right: 8px;"></i> Clube de Leitura
+                </button>
+                {% endif %}
+
+                {% if cargo == 'super_admin' %}
+                <div style="margin-top: 15px; padding: 0 0.5rem; font-size: 0.75rem; text-transform: uppercase; color: #6b7280; font-weight: 700; tracking-wide: 0.05em;">
+                    Administração Total
+                </div>
+                <button onclick="alternarTabela('sec_utilizadores', this)" class="btn-sidebar">
+                    <i class="fas fa-users" style="width: 20px; margin-right: 8px;"></i> Utilizadores
+                </button>
+                <button onclick="alternarTabela('sec_categorias', this)" class="btn-sidebar">
+                    <i class="fas fa-tags" style="width: 20px; margin-right: 8px;"></i> Categorias (CRUD)
+                </button>
+                {% endif %}
+            </nav>
+        </div>
+        
+        <div style="padding: 10px; border-top: 1px solid #2d2d2d; font-size: 0.8rem; color: #9ca3af;">
+            Sessão iniciada como:<br>
+            <strong style="color: #F39200; text-transform: uppercase;">{{ cargo }}</strong>
+        </div>
+    </aside>
+
+    <main style="flex-grow: 1; padding: 3rem; overflow-y: auto; background-color: #ffffff;">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div style="padding: 15px; margin-bottom: 30px; border-radius: 6px; font-weight: 600; 
+                        {% if category == 'success' %} background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc;
+                        {% else %} background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <section id="sec_eventos" class="seccao-tabela">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 30px;">
+                <div>
+                    <h1 style="font-size: 2.25rem; font-weight: 900; margin: 0; color: #1a1a1a;">Eventos Culturais</h1>
+                    <p style="color: #6b7280; margin: 5px 0 0 0;">Gestão integrada de conferências, ensaios e espetáculos.</p>
+                </div>
+                <button onclick="abrirModal('modalEvento')" style="background-color: #F39200; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s;">
+                    <i class="fas fa-calendar-plus"></i> Novo Evento
+                </button>
+            </div>
+
+            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); overflow: hidden;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #e5e7eb; background-color: #f3f4f6; font-size: 0.85rem; text-transform: uppercase; tracking-spacing: 0.05em; color: #4b5563;">
+                            <th style="padding: 14px 18px;">Título</th>
+                            <th style="padding: 14px 18px;">Data & Hora</th>
+                            <th style="padding: 14px 18px;">Categoria</th>
+                            <th style="padding: 14px 18px;">Estado</th>
+                            <th style="padding: 14px 18px; text-align: center;">Vagas</th>
+                            <th style="padding: 14px 18px;">Lugar</th>
+                            <th style="padding: 14px 18px; text-align: center;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for evento in eventos %}
+                        <tr style="border-bottom: 1px solid #e5e7eb;">
+                            <td style="padding: 14px 18px; font-weight: 700;">{{ evento.titulo }}</td>
+                            <td style="padding: 14px 18px; color: #4b5563;">{{ evento.data_evento }}</td>
+                            <td style="padding: 14px 18px; text-transform: uppercase; font-size: 0.8rem; font-weight: 700; color: #F39200;">{{ evento.categoria }}</td>
+                            <td style="padding: 14px 18px;">{{ evento.status }}</td>
+                            <td style="padding: 14px 18px; text-align: center;">{{ evento.vagas_ocupadas }}/{{ evento.vagas_totais }}</td>
+                            <td style="padding: 14px 18px; color: #4b5563;">{{ evento.local }} ({{ evento.cidade }})</td>
+                            <td style="padding: 14px 18px; text-align: center; display: flex; gap: 15px; justify-content: center;">
+                                <button onclick="abrirModal('modalEditarEvento{{ evento.id }}')" style="background: none; border: none; color: #F39200; cursor: pointer; font-size: 1rem;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <form action="{{ url_for('apagar_evento', id=evento.id) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Tens a certeza que queres apagar este evento?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" style="background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; color: #dc2626; text-decoration: none; font-size: 1rem;" aria-label="Apagar"><i class="fas fa-trash"></i></button></form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" style="padding: 30px; text-align: center; color: #888; font-style: italic;">Nenhum evento registado sob a tua alçada de gestão.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="sec_noticias" class="seccao-tabela" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 30px;">
+                <div>
+                    <h1 style="font-size: 2.25rem; font-weight: 900; margin: 0; color: #1a1a1a;">Notícias & Publicações</h1>
+                    <p style="color: #6b7280; margin: 5px 0 0 0;">Feed de novidades e informações aos estudantes.</p>
+                </div>
+                <button onclick="abrirModal('modalNoticia')" style="background-color: #1a1a1a; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s;">
+                    <i class="fas fa-newspaper"></i> Nova Notícia
+                </button>
+            </div>
+
+            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); overflow: hidden;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #e5e7eb; background-color: #f3f4f6; font-size: 0.85rem; text-transform: uppercase; color: #4b5563;">
+                            <th style="padding: 14px 18px;">Título</th>
+                            <th style="padding: 14px 18px;">Categoria</th>
+                            <th style="padding: 14px 18px;">Data de Criação</th>
+                            <th style="padding: 14px 18px;">Estado</th>
+                            <th style="padding: 14px 18px; text-align: center;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for noticia in noticias %}
+                        <tr style="border-bottom: 1px solid #e5e7eb;">
+                            <td style="padding: 14px 18px; font-weight: 700;">{{ noticia.titulo }}</td>
+                            <td style="padding: 14px 18px; text-transform: uppercase; font-size: 0.8rem; font-weight: 700; color: #1a1a1a;">{{ noticia.categoria }}</td>
+                            <td style="padding: 14px 18px;">{{ noticia.data_publicacao }}</td>
+                            <td style="padding: 14px 18px;">
+                                <span style="padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; background-color: #d1fae5; color: #065f46;">
+                                    {{ noticia.status }}
+                                </span>
+                            </td>
+                            <td style="padding: 14px 18px; text-align: center; display: flex; gap: 15px; justify-content: center;">
+                                <button onclick="abrirModal('modalEditarNoticia{{ noticia.id }}')" style="background: none; border: none; color: #F39200; cursor: pointer; font-size: 1rem;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <form action="{{ url_for('apagar_noticia', id=noticia.id) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Tens a certeza que queres apagar esta notícia?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" style="background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; color: #dc2626; text-decoration: none; font-size: 1rem;" aria-label="Apagar"><i class="fas fa-trash"></i></button></form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" style="padding: 30px; text-align: center; color: #888; font-style: italic;">Nenhuma notícia publicada.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        {% if cargo in ['super_admin', 'admin_leitura'] %}
+        <section id="sec_livros" class="seccao-tabela" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 30px;">
+                <div>
+                    <h1 style="font-size: 2.25rem; font-weight: 900; margin: 0; color: #1a1a1a;">Montra de Livros</h1>
+                    <p style="color: #6b7280; margin: 5px 0 0 0;">Obras recomendadas e sinopses do Clube de Leitura.</p>
+                </div>
+                <button onclick="abrirModal('modalNovoLivro')" style="background-color: #047857; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s;">
+                    <i class="fas fa-book-medical"></i> Novo Livro
+                </button>
+            </div>
+
+            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); overflow: hidden;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #e5e7eb; background-color: #f3f4f6; font-size: 0.85rem; text-transform: uppercase; color: #4b5563;">
+                            <th style="padding: 14px 18px;">Obra / Título</th>
+                            <th style="padding: 14px 18px;">Autor</th>
+                            <th style="padding: 14px 18px;">Destaque / Status</th>
+                            <th style="padding: 14px 18px; text-align: center;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for livro in livros %}
+                        <tr style="border-bottom: 1px solid #e5e7eb;">
+                            <td style="padding: 14px 18px; font-weight: 700;">{{ livro.titulo }}</td>
+                            <td style="padding: 14px 18px; color: #4b5563;">{{ livro.autor }}</td>
+                            <td style="padding: 14px 18px; text-transform: uppercase; font-size: 0.75rem; font-weight: 700; color: #047857;">{{ livro.status }}</td>
+                            <td style="padding: 14px 18px; text-align: center; display: flex; gap: 15px; justify-content: center;">
+                                <button onclick="abrirModal('modalEditarLivro{{ livro.id }}')" style="background: none; border: none; color: #F39200; cursor: pointer; font-size: 1rem;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <form action="{{ url_for('apagar_livro', id=livro.id) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Apagar este livro dos destaques?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" style="background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; color: #dc2626; text-decoration: none; font-size: 1rem;" aria-label="Apagar"><i class="fas fa-trash"></i></button></form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        {% endif %}
+
+        {% if cargo == 'super_admin' %}
+        <section id="sec_utilizadores" class="seccao-tabela" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 30px;">
+                <div>
+                    <h1 style="font-size: 2.25rem; font-weight: 900; margin: 0; color: #1a1a1a;">Utilizadores & Cargos</h1>
+                    <p style="color: #6b7280; margin: 5px 0 0 0;">Gestão estrita de permissões de alunos e administradores.</p>
+                </div>
+                <button onclick="abrirModal('modalNovoUser')" style="background-color: #991b1b; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s;">
+                    <i class="fas fa-user-plus"></i> Novo Utilizador
+                </button>
+            </div>
+
+            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); overflow: hidden;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #e5e7eb; background-color: #f3f4f6; font-size: 0.85rem; text-transform: uppercase; color: #4b5563;">
+                            <th style="padding: 14px 18px;">Nome Real</th>
+                            <th style="padding: 14px 18px;">Email Institucional</th>
+                            <th style="padding: 14px 18px;">Cargo / Nível</th>
+                            <th style="padding: 14px 18px; text-align: center;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in utilizadores %}
+                        <tr style="border-bottom: 1px solid #e5e7eb;">
+                            <td style="padding: 14px 18px; font-weight: 700;">{{ user.nome_real }}</td>
+                            <td style="padding: 14px 18px; color: #4b5563;">{{ user.email }}</td>
+                            <td style="padding: 14px 18px;">
+                                <span style="padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; 
+                                    {% if user.role == 'super_admin' %} background-color: #fef3c7; color: #92400e;
+                                    {% elif user.role == 'aluno' %} background-color: #f3f4f6; color: #374151;
+                                    {% else %} background-color: #e0e7ff; color: #3730a3; {% endif %}">
+                                    {{ user.role|upper }}
+                                </span>
+                            </td>
+                            <td style="padding: 14px 18px; text-align: center; display: flex; gap: 15px; justify-content: center;">
+                                <button onclick="abrirModal('modalEditarUser{{ user.id }}')" style="background: none; border: none; color: #F39200; cursor: pointer; font-size: 1rem;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                {% if user.id != session.get('user_id') %}
+                                <form action="{{ url_for('admin_apagar_user', id=user.id) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Eliminar permanentemente a conta deste utilizador?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" style="background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; color: #dc2626; text-decoration: none; font-size: 1rem;" aria-label="Apagar"><i class="fas fa-trash"></i></button></form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="sec_categorias" class="seccao-tabela" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 30px;">
+                <div>
+                    <h1 style="font-size: 2.25rem; font-weight: 900; margin: 0; color: #1a1a1a;">Categorias Dinâmicas</h1>
+                    <p style="color: #6b7280; margin: 5px 0 0 0;">Gestão estrita de categorias de segmentação artística do banco de dados.</p>
+                </div>
+                <button onclick="abrirModal('modalCategoria')" style="background-color: #4f46e5; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-tags"></i> Nova Categoria
+                </button>
+            </div>
+
+            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); overflow: hidden;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #e2e8f0; background-color: #f1f5f9; font-size: 0.85rem; text-transform: uppercase; color: #475569;">
+                            <th style="padding: 14px 18px;">Identificador</th>
+                            <th style="padding: 14px 18px;">Nome da Categoria</th>
+                            <th style="padding: 14px 18px;">Descrição / Contexto</th>
+                            <th style="padding: 14px 18px; text-align: center;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cat in categorias %}
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 14px 18px; color: #64748b;">#{{ cat.id }}</td>
+                            <td style="padding: 14px 18px; font-weight: 700; text-transform: uppercase; color: #4f46e5;">{{ cat.nome }}</td>
+                            <td style="padding: 14px 18px; color: #475569;">{{ cat.descricao if cat.descricao else 'Nenhuma descrição fornecida.' }}</td>
+                            <td style="padding: 14px 18px; text-align: center; display: flex; gap: 15px; justify-content: center;">
+                                <button onclick="abrirModal('modalEditarCategoria{{ cat.id }}')" style="background: none; border: none; color: #4f46e5; cursor: pointer; font-size: 1rem;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                {% if cat.nome not in ['leitura', 'teatro', 'externo'] %}
+                                <form action="{{ url_for('apagar_categoria', id=cat.id) }}" method="POST" style="margin: 0;" onsubmit="return confirm('Tens a certeza que desejas remover esta categoria?');"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button type="submit" style="background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; color: #dc2626; text-decoration: none; font-size: 1rem;" aria-label="Apagar"><i class="fas fa-trash"></i></button></form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        {% endif %}
+
+    </main>
+</div>
+
+<div id="modalEvento" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
+    <div style="background-color: white; padding: 30px; border-radius: 12px; width: 650px; max-width: 95%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border-top: 6px solid #F39200; position: relative;">
+        <span onclick="fecharModal('modalEvento')" style="position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: #9ca3af; font-weight: bold;">&times;</span>
+        <h3 style="margin-top: 0; font-size: 1.5rem; font-weight: 800; margin-bottom: 20px;"><i class="fas fa-calendar-plus" style="color: #F39200;"></i> Adicionar Novo Evento</h3>
+        
+        <form action="{{ url_for('adicionar_evento') }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Título do Evento</label>
+                <input type="text" name="titulo" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Descrição</label>
+                <textarea name="descricao" rows="3" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; font-family: sans-serif;"></textarea>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Data & Hora</label>
+                    <input type="datetime-local" name="data_evento" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Local / Edifício</label>
+                    <input type="text" name="local" required placeholder="Ex: Auditório" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <div>
+                    <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.85rem; color: #475569;"><i class="fas fa-map-marked-alt" style="color: #F39200;"></i> Distrito:</label>
+                    <select name="distrito" class="select-distrito" data-alvo="cidadeNova" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; height: 40px; background: white; cursor: pointer;">
+                        <option value="">A carregar...</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.85rem; color: #475569;"><i class="fas fa-city" style="color: #F39200;"></i> Cidade/Município:</label>
+                    <select name="cidade" id="cidadeNova" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; height: 40px; background: white; cursor: pointer;" required>
+                        <option value="">Aguardando Distrito...</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Categoria</label>
+                    {% if cargo == 'super_admin' %}
+                        <select name="categoria" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; height: 40px; background: white;">
+                        {% for cat in categorias %}
+                            <option value="{{ cat.nome }}">{{ cat.nome|upper }}</option>
+                        {% endfor %}
+                        </select>
+                    {% elif cargo == 'admin_leitura' %}
+                        <select name="categoria" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; background: #f3f4f6; height: 40px;">
+                            <option value="leitura">Clube de Leitura</option>
+                        </select>
+                    {% elif cargo == 'admin_teatro' %}
+                        <select name="categoria" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; background: #f3f4f6; height: 40px;">
+                            <option value="teatro">Clube de Teatro</option>
+                        </select>
+                    {% endif %}
+                </div>
+                <div>
+                    <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Vagas Totais</label>
+                    <input type="number" name="vagas_totais" value="30" min="1" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; height: 40px;">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">URL da Imagem Ilustrativa</label>
+                <input type="url" name="imagem_url" placeholder="https://images.unsplash.com/...jpg" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            
+            <button type="submit" style="width: 100%; background-color: #F39200; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 1rem;">Guardar Evento</button>
+        </form>
+    </div>
+</div>
+
+{% for evento in eventos %}
+<div id="modalEditarEvento{{ evento.id }}" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; padding: 20px;">
+    <div style="background: white; padding: 30px; border-radius: 12px; width: 650px; max-width: 95%; position: relative; border-top: 5px solid #F39200; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-height: 90vh; overflow-y: auto;">
+        <span onclick="fecharModal('modalEditarEvento{{ evento.id }}')" style="position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: #9ca3af; font-weight: bold;">&times;</span>
+        <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 1.3rem; font-weight: 800;">Editar Evento</h3>
+        
+        <form action="{{ url_for('editar_evento', id=evento.id) }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px;">Título</label>
+                <input type="text" name="titulo" value="{{ evento.titulo }}" required style="width:100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px;">Descrição</label>
+                <textarea name="descricao" rows="3" style="width:100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">{{ evento.descricao }}</textarea>
+            </div>
+            
+            <div style="margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <label style="font-weight: 700; display: block; margin-bottom: 5px;">Data/Hora</label>
+                    <input type="datetime-local" name="data_evento" value="{{ evento.data_evento }}" style="width:100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-weight: 700; display: block; margin-bottom: 5px;">Local</label>
+                    <input type="text" name="local" value="{{ evento.local }}" style="width:100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <div>
+                    <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.85rem; color: #475569;"><i class="fas fa-map-marked-alt" style="color: #F39200;"></i> Distrito:</label>
+                    <select name="distrito" class="select-distrito" data-alvo="cidadeEdit{{ evento.id }}" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; height: 42px; background: white; cursor: pointer;">
+                        <option value="">A carregar...</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.85rem; color: #475569;"><i class="fas fa-city" style="color: #F39200;"></i> Cidade/Município:</label>
+                    <select name="cidade" id="cidadeEdit{{ evento.id }}" data-cidade-atual="{{ evento.cidade }}" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; height: 42px; background: white; cursor: pointer;" required>
+                        <option value="{{ evento.cidade }}" selected>{{ evento.cidade }} (Atual)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Categoria</label>
+                    {% if cargo == 'super_admin' %}
+                        <select name="categoria" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; height: 42px; background: white;">
+                        {% for cat in categorias %}
+                            <option value="{{ cat.nome }}" {% if evento.categoria == cat.nome %}selected{% endif %}>{{ cat.nome|upper }}</option>
+                        {% endfor %}
+                        </select>
+                    {% else %}
+                        <input type="text" name="categoria" value="{{ evento.categoria }}" readonly style="width:100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; background: #f3f4f6;">
+                    {% endif %}
+                </div>
+                <div>
+                    <label style="font-weight: 700; display: block; margin-bottom: 5px;">Estado</label>
+                    <select name="status" style="width:100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; height: 42px; background-color: white;">
+                        <option value="agendado" {% if evento.status == 'agendado' %}selected{% endif %}>Agendado</option>
+                        <option value="realizado" {% if evento.status == 'realizado' %}selected{% endif %}>Realizado</option>
+                        <option value="cancelado" {% if evento.status == 'cancelado' %}selected{% endif %}>Cancelado</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 15px; display: grid; grid-template-columns: 2fr 1fr; gap: 15px;">
+                <div>
+                    <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">URL da Imagem Ilustrativa</label>
+                    <input type="url" name="imagem_url" value="{{ evento.imagem_url if evento.imagem_url else '' }}" placeholder="https://exemplo.com/foto.jpg" style="width:100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+                </div>
+                <div>
+                    <label style="font-weight: 700; display: block; margin-bottom: 5px;">Vagas Totais</label>
+                    <input type="number" name="vagas_totais" value="{{ evento.vagas_totais }}" style="width:100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+                </div>
+            </div>
+            
+            <button type="submit" style="width:100%; background-color:#F39200; color:white; border:none; padding:12px; border-radius:6px; font-weight:700; cursor:pointer; font-size:1rem; margin-top: 10px;">Guardar Alterações</button>
+        </form>
+    </div>
+</div>
+{% endfor %}
+
+<div id="modalNoticia" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
+    <div style="background-color: white; padding: 30px; border-radius: 12px; width: 600px; max-width: 95%; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border-top: 6px solid #1a1a1a; position: relative;">
+        <span onclick="fecharModal('modalNoticia')" style="position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: #9ca3af; font-weight: bold;">&times;</span>
+        <h3 style="margin-top: 0; font-size: 1.5rem; font-weight: 800; margin-bottom: 20px;"><i class="fas fa-newspaper" style="color: #1a1a1a;"></i> Publicar Nova Notícia</h3>
+        
+        <form action="{{ url_for('adicionar_noticia') }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Título</label>
+                <input type="text" name="titulo" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Categoria</label>
+                <select name="categoria" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+                    <option value="geral">Geral</option>
+                    <option value="leitura">Clube de Leitura</option>
+                    <option value="teatro">Clube de Teatro</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Conteúdo</label>
+                <textarea name="conteudo" rows="5" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; font-family: sans-serif;"></textarea>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">URL da Imagem</label>
+                <input type="url" name="imagem_url" placeholder="https://exemplo.com/imagem.jpg" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Estado</label>
+                <select name="status" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+                    <option value="publicado">Publicado</option>
+                    <option value="rascunho">Rascunho</option>
+                </select>
+            </div>
+            
+            <button type="submit" style="width: 100%; background-color: #1a1a1a; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 1rem;">Publicar Notícia</button>
+        </form>
+    </div>
+</div>
+
+{% for noticia in noticias %}
+<div id="modalEditarNoticia{{ noticia.id }}" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
+    <div style="background-color: white; padding: 30px; border-radius: 12px; width: 600px; max-width: 95%; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border-top: 6px solid #F39200; position: relative;">
+        <span onclick="fecharModal('modalEditarNoticia{{ noticia.id }}')" style="position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: #9ca3af; font-weight: bold;">&times;</span>
+        <h3 style="margin-top: 0; font-size: 1.5rem; font-weight: 800; margin-bottom: 20px;"><i class="fas fa-edit" style="color: #F39200;"></i> Editar Notícia</h3>
+        
+        <form action="{{ url_for('editar_noticia', id=noticia.id) }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px;">Título</label>
+                <input type="text" name="titulo" value="{{ noticia.titulo }}" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px;">Categoria</label>
+                <select name="categoria" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+                    <option value="geral" {% if noticia.categoria == 'geral' %}selected{% endif %}>Geral</option>
+                    <option value="leitura" {% if noticia.categoria == 'leitura' %}selected{% endif %}>Clube de Leitura</option>
+                    <option value="teatro" {% if noticia.categoria == 'teatro' %}selected{% endif %}>Clube de Teatro</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px;">Conteúdo</label>
+                <textarea name="conteudo" rows="5" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; font-family: sans-serif;">{{ noticia.conteudo }}</textarea>
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px;">URL da Imagem</label>
+                <input type="url" name="imagem_url" value="{{ noticia.imagem_url if noticia.imagem_url else '' }}" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px;">Estado</label>
+                <select name="status" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+                    <option value="publicado" {% if noticia.status == 'publicado' %}selected{% endif %}>Publicado</option>
+                    <option value="rascunho" {% if noticia.status == 'rascunho' %}selected{% endif %}>Rascunho</option>
+                </select>
+            </div>
+            
+            <button type="submit" style="width: 100%; background-color: #F39200; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 700; cursor: pointer;">Guardar Alterações</button>
+        </form>
+    </div>
+</div>
+{% endfor %}
+
+<div id="modalCategoria" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
+    <div style="background-color: white; padding: 30px; border-radius: 12px; width: 450px; max-width: 90%; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border-top: 6px solid #4f46e5; position: relative;">
+        <span onclick="fecharModal('modalCategoria')" style="position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: #9ca3af; font-weight: bold;">&times;</span>
+        <h3 style="margin-top: 0; font-size: 1.4rem; font-weight: 800; margin-bottom: 20px;"><i class="fas fa-tags" style="color: #4f46e5;"></i> Criar Nova Categoria de Evento</h3>
+        
+        <form action="{{ url_for('adicionar_categoria') }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Nome da Categoria</label>
+                <input type="text" name="nome_categoria" required placeholder="Ex: musica, exposicoes, cinema" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Descrição / Enquadramento</label>
+                <textarea name="descricao_categoria" rows="3" placeholder="Insere uma breve explicação sobre o tipo de conteúdos desta categoria..." style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; font-family: sans-serif;"></textarea>
+            </div>
+            <button type="submit" style="width: 100%; background-color: #4f46e5; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 1rem;">Registrar Categoria</button>
+        </form>
+    </div>
+</div>
+
+{% if cargo == 'super_admin' %}
+{% for cat in categorias %}
+<div id="modalEditarCategoria{{ cat.id }}" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; padding: 20px;">
+    <div style="background: white; padding: 30px; border-radius: 12px; width: 450px; max-width: 100%; position: relative; border-top: 5px solid #4f46e5; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+        <span onclick="fecharModal('modalEditarCategoria{{ cat.id }}')" style="position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: #9ca3af; font-weight: bold;">&times;</span>
+        <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 1.3rem; font-weight: 800;"><i class="fas fa-tags" style="color: #4f46e5;"></i> Editar Categoria</h3>
+        
+        <form action="{{ url_for('editar_categoria', id=cat.id) }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Nome da Categoria</label>
+                <input type="text" name="nome_categoria" value="{{ cat.nome }}" required style="width:100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Descrição / Enquadramento</label>
+                <textarea name="descricao_categoria" rows="3" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; font-family: sans-serif;">{{ cat.descricao }}</textarea>
+            </div>
+            <button type="submit" style="width:100%; background-color:#4f46e5; color:white; border:none; padding:12px; border-radius:6px; font-weight:700; cursor:pointer;">Guardar Alterações</button>
+        </form>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+
+<div id="modalNovoLivro" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
+    <div style="background-color: white; padding: 30px; border-radius: 12px; width: 460px; max-width: 90%; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border-top: 6px solid #047857; position: relative;">
+        <span onclick="fecharModal('modalNovoLivro')" style="position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: #9ca3af; font-weight: bold;">&times;</span>
+        <h3 style="margin-top: 0; font-size: 1.4rem; font-weight: 800; margin-bottom: 20px;"><i class="fas fa-book" style="color: #047857;"></i> Adicionar Livro à Montra</h3>
+        
+        <form action="{{ url_for('adicionar_livro') }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Título da Obra</label>
+                <input type="text" name="titulo" required placeholder="Ex: Memorial do Convento" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Autor</label>
+                <input type="text" name="autor" required placeholder="Ex: José Saramago" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Estado de Destaque</label>
+                <select name="status" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; height: 40px; background-color: white;">
+                    <option value="destaque">Destaque do Mês</option>
+                    <option value="leitura livre">Leitura Livre</option>
+                    <option value="sugerido">Sugerido pelos Alunos</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Sinopse / Descrição da Obra</label>
+                <textarea name="sinopse" rows="4" placeholder="Escreve aqui um resumo do livro ou objetivos da leitura..." style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; font-family: sans-serif;"></textarea>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">URL da Capa do Livro</label>
+                <input type="url" name="imagem_url" placeholder="https://exemplo.com/capa.jpg" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <button type="submit" style="width: 100%; background-color: #047857; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 1rem;">Publicar na Montra</button>
+        </form>
+    </div>
+</div>
+
+{% if cargo in ['super_admin', 'admin_leitura'] %}
+{% for livro in livros %}
+<div id="modalEditarLivro{{ livro.id }}" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; padding: 20px;">
+    <div style="background: white; padding: 30px; border-radius: 12px; width: 460px; max-width: 100%; position: relative; border-top: 5px solid #047857; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+        <span onclick="fecharModal('modalEditarLivro{{ livro.id }}')" style="position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: #9ca3af; font-weight: bold;">&times;</span>
+        <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 1.3rem; font-weight: 800;">Editar Livro</h3>
+        
+        <form action="{{ url_for('editar_livro', id=livro.id) }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px;">Título</label>
+                <input type="text" name="titulo" value="{{ livro.titulo }}" required style="width:100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px;">Autor</label>
+                <input type="text" name="autor" value="{{ livro.autor }}" required style="width:100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px;">Estado</label>
+                <select name="status" style="width:100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; height: 40px; background-color: white;">
+                    <option value="destaque" {% if livro.status == 'destaque' %}selected{% endif %}>Destaque do Mês</option>
+                    <option value="leitura livre" {% if livro.status == 'leitura livre' %}selected{% endif %}>Leitura Livre</option>
+                    <option value="sugerido" {% if livro.status == 'sugerido' %}selected{% endif %}>Sugerido pelos Alunos</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px;">Sinopse</label>
+                <textarea name="sinopse" rows="4" style="width:100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; font-family: sans-serif;">{{ livro.sinopse if livro.sinopse else '' }}</textarea>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px;">URL da Capa do Livro</label>
+                <input type="url" name="imagem_url" value="{{ livro.imagem_url if livro.imagem_url else '' }}" style="width:100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <button type="submit" style="width:100%; background-color:#047857; color:white; border:none; padding:12px; border-radius:6px; font-weight:700;">Guardar Alterações</button>
+        </form>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+
+<div id="modalNovoUser" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
+    <div style="background-color: white; padding: 30px; border-radius: 12px; width: 460px; max-width: 90%; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border-top: 6px solid #991b1b; position: relative;">
+        <span onclick="fecharModal('modalNovoUser')" style="position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: #9ca3af; font-weight: bold;">&times;</span>
+        <h3 style="margin-top: 0; font-size: 1.4rem; font-weight: 800; margin-bottom: 20px;"><i class="fas fa-user-shield" style="color: #991b1b;"></i> Registar Novo Gestor / Aluno</h3>
+        
+        <form action="{{ url_for('admin_adicionar_user') }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Nome Completo</label>
+                <input type="text" name="nome_real" required placeholder="Ex: Professor Justino Lourenço" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">E-mail do Utilizador</label>
+                <input type="email" name="email" required placeholder="nome@exemplo.pt" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Palavra-passe Inicial</label>
+                <input type="password" name="password" required placeholder="••••••••" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px; font-size: 0.9rem;">Nível de Acesso (Cargo)</label>
+                <select name="role" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; height: 40px; background-color: white;">
+                    <option value="aluno">Aluno (Apenas visualiza e inscreve-se)</option>
+                    <option value="admin_leitura">Admin Clube Leitura</option>
+                    <option value="admin_teatro">Admin Clube Teatro</option>
+                    <option value="super_admin">Super Administrador (Acesso Total)</option>
+                </select>
+            </div>
+            <button type="submit" style="width: 100%; background-color: #991b1b; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: 700; cursor: pointer;">Criar Utilizador</button>
+        </form>
+    </div>
+</div>
+
+{% if cargo == 'super_admin' %}
+{% for user in utilizadores %}
+<div id="modalEditarUser{{ user.id }}" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; padding: 20px;">
+    <div style="background: white; padding: 30px; border-radius: 12px; width: 460px; max-width: 100%; position: relative; border-top: 5px solid #991b1b; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+        <span onclick="fecharModal('modalEditarUser{{ user.id }}')" style="position: absolute; right: 20px; top: 15px; font-size: 24px; cursor: pointer; color: #9ca3af; font-weight: bold;">&times;</span>
+        <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 1.3rem; font-weight: 800;">Alterar Permissões</h3>
+        
+        <form action="{{ url_for('admin_editar_user', id=user.id) }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px;">Nome Completo</label>
+                <input type="text" name="nome_real" value="{{ user.nome_real }}" required style="width:100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px;">Email</label>
+                <input type="email" name="email" value="{{ user.email }}" required style="width:100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 700; display: block; margin-bottom: 5px;">Cargo / Role</label>
+                <select name="role" style="width:100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; height: 40px; background-color: white;">
+                    <option value="aluno" {% if user.role == 'aluno' %}selected{% endif %}>Aluno</option>
+                    <option value="admin_leitura" {% if user.role == 'admin_leitura' %}selected{% endif %}>Admin Leitura</option>
+                    <option value="admin_teatro" {% if user.role == 'admin_teatro' %}selected{% endif %}>Admin Teatro</option>
+                    <option value="super_admin" {% if user.role == 'super_admin' %}selected{% endif %}>Super Admin</option>
+                </select>
+            </div>
+            <button type="submit" style="width:100%; background-color:#991b1b; color:white; border:none; padding:12px; border-radius:6px; font-weight:700;">Atualizar Conta</button>
+        </form>
+    </div>
+</div>
+
+
+{% endfor %}
+{% endif %}
+
+<style>
+    .btn-sidebar {
+        width: 100%;
+        text-align: left;
+        background: transparent;
+        border: none;
+        color: #9ca3af;
+        padding: 14px 16px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+    }
+    .btn-sidebar:hover {
+        background-color: #2d2d2d;
+        color: white;
+    }
+    .btn-sidebar.active-sidebar {
+        background-color: #F39200;
+        color: white;
+    }
+</style>
+
+<script>
+function alternarTabela(idSeccao, botaoAlvo) {
+    // 1. Ocultar todas as secções de tabelas
+    const seccoes = document.querySelectorAll('.seccao-tabela');
+    seccoes.forEach(sec => {
+        sec.style.display = 'none';
+    });
+
+    // 2. Mostrar apenas a secção selecionada
+    const seccaoAtiva = document.getElementById(idSeccao);
+    if(seccaoAtiva) {
+        seccaoAtiva.style.display = 'block';
+    }
+
+    // 3. Atualizar o estado visual dos botões na Sidebar
+    const botoes = document.querySelectorAll('.btn-sidebar');
+    botoes.forEach(btn => {
+        btn.classList.remove('active-sidebar');
+    });
+    botaoAlvo.classList.add('active-sidebar');
+}
+
+function abrirModal(idModal) {
+    const modal = document.getElementById(idModal);
+    if(modal) modal.style.display = "flex";
+}
+
+function fecharModal(idModal) {
+    const modal = document.getElementById(idModal);
+    if(modal) modal.style.display = "none";
+}
+
+document.addEventListener("DOMContentLoaded", async function() {
+    // 1. Usamos a função nativa do Flask para obter o caminho correto da pasta 'static'
+    const urlJSON = "{{ url_for('static', filename='data/cidades.json') }}";
+
+    try {
+        // 2. Fazemos o fetch assíncrono do nosso próprio ficheiro JSON
+        const response = await fetch(urlJSON);
+        const data = await response.json();
+        
+        // A tua estrutura JSON tem um array principal chamado "portugal"
+        const listaPortugal = data.portugal;
+
+        const selectsDistrito = document.querySelectorAll('.select-distrito');
+
+        selectsDistrito.forEach(select => {
+            select.innerHTML = '<option value="">Selecione o Distrito...</option>';
+            
+            // Verifica se existe um distrito já gravado (no modal de edição)
+            const distritoGuardado = select.getAttribute('data-distrito-atual');
+            
+            // Popula os dropdowns de distrito com os dados do teu JSON
+            listaPortugal.forEach(item => {
+                let option = document.createElement('option');
+                option.value = item.distrito;
+                option.textContent = item.distrito;
+                
+                // Se for edição, seleciona o distrito automaticamente
+                if (distritoGuardado === item.distrito) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+
+            // Evento: Quando o admin escolhe um Distrito, carrega os Municípios
+            select.addEventListener('change', function() {
+                const distritoEscolhido = this.value;
+                const idAlvo = this.getAttribute('data-alvo');
+                const selectCidadeAlvo = document.getElementById(idAlvo);
+                const cidadeGuardada = selectCidadeAlvo.getAttribute('data-cidade-atual');
+                
+                if (!distritoEscolhido) {
+                    selectCidadeAlvo.innerHTML = '<option value="">Aguardando Distrito...</option>';
+                    if (cidadeGuardada) {
+                        selectCidadeAlvo.innerHTML += `<option value="${cidadeGuardada}" selected>${cidadeGuardada} (Registo Atual)</option>`;
+                    }
+                    return;
+                }
+
+                // Procuramos no teu JSON qual é o bloco do distrito escolhido
+                const dadosDistrito = listaPortugal.find(d => d.distrito === distritoEscolhido);
+
+                selectCidadeAlvo.innerHTML = '<option value="">Selecione a Cidade/Município...</option>';
+
+                if (dadosDistrito && dadosDistrito.municipios) {
+                    // Preenchemos o dropdown com as cidades desse distrito
+                    dadosDistrito.municipios.forEach(mun => {
+                        let option = document.createElement('option');
+                        option.value = mun;
+                        option.textContent = mun;
+
+                        if (cidadeGuardada === mun) option.selected = true;
+                        selectCidadeAlvo.appendChild(option);
+                    });
+
+                    // Prevenção: se a cidade guardada na BD não estiver na lista
+                    if (cidadeGuardada && !dadosDistrito.municipios.includes(cidadeGuardada)) {
+                         let optionExtra = document.createElement('option');
+                         optionExtra.value = cidadeGuardada;
+                         optionExtra.textContent = cidadeGuardada + " (Registo Existente)";
+                         optionExtra.selected = true;
+                         selectCidadeAlvo.appendChild(optionExtra);
+                    }
+                } else {
+                    selectCidadeAlvo.innerHTML = '<option value="">Nenhum município encontrado.</option>';
+                }
+            });
+
+            // TRUQUE FINAL: Dispara a atualização automaticamente para preencher logo a cidade no Edit!
+            if (distritoGuardado) {
+                select.dispatchEvent(new Event('change'));
+            }
+        });
+
+    } catch (error) {
+        console.error("Falha a carregar o ficheiro cidades.json:", error);
+        document.querySelectorAll('.select-distrito').forEach(el => {
+            el.innerHTML = '<option value="">Erro ao ler ficheiro local</option>';
+        });
+    }
+});
+</script>
+{% endblock %}

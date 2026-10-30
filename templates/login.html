@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Administrativo | Lab Cultural</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Estilos para o fundo Branco */
+        body {
+            background-color: #ffffff; /* Fundo Totalmente Branco */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .login-card {
+            max-width: 400px;
+            width: 90%;
+            background: #ffffff; /* Card também branco */
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid #eeeeee; /* Borda leve para distinguir do fundo */
+            border-top: 5px solid #F39200; /* Linha laranja característica */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); /* Sombra suave */
+        }
+
+        h2 {
+            color: #1A1A1A; /* Texto escuro para contraste */
+            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+        }
+
+        .form-label {
+            color: #555555;
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            color: #333;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: #F39200;
+            outline: none;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: #1A1A1A; /* Botão preto para contraste no fundo branco */
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 800;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        .btn-submit:hover {
+            background: #F39200; /* Muda para laranja ao passar o rato */
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <h2>Acesso Restrito</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div style="padding: 12px; margin-bottom: 20px; border-radius: 6px; font-size: 0.9rem; font-weight: 600; text-align: center;
+                    {% if category == 'danger' %} background-color: #fde8e8; color: #9b1c1c; border: 1px solid #f8b4b4;
+                    {% else %} background-color: #def7ec; color: #03543f; border: 1px solid #bcf0da; {% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('login') }}" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label class="form-label">E-mail</label>
+        <input type="email" name="email" class="form-input" required placeholder="Email">
+
+        <label class="form-label">Palavra-passe</label>
+        <input type="password" name="password" class="form-input" required placeholder="Senha">
+
+        <button type="submit" class="btn-submit">Entrar</button>
+        <div style="margin-top: 25px; text-align: center; border-top: 1px solid #eeeeee; padding-top: 15px;">
+            <p style="margin: 0; font-size: 0.85rem; color: #666;">
+                Ainda não fazes parte do Lab? 
+            </p>
+            <a href="{{ url_for('registo') }}" style="color: #F39200; text-decoration: none; font-weight: 700; margin-left: 3px;">Cria uma conta &rarr;</a>
+        </div>
+    </form>
+
+        <div style="margin-top: 20px; text-align: center;">
+            <a href="{{ url_for('lab_cultural') }}" style="color: #999; text-decoration: none; font-size: 0.85rem;">
+                ← Voltar à página principal
+            </a>
+        </div>
+    </div>
+
+    <p style="color: #ccc; font-size: 0.75rem; margin-top: 30px;">
+        &copy; 2026 Laboratório Cultural
+    </p>
+
+</body>
+</html>

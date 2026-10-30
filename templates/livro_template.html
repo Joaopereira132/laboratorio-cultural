@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}{{ livro.titulo }} - Clube de Leitura{% endblock %}
+
+{% block breadcrumb %}
+<div style="padding: 1.5rem 8% 0 8%; background-color: #ffffff; color: #6b7280; font-size: 0.85rem; font-weight: 600;">
+    <a href="/lab_cultural" style="text-decoration: none; color: #6b7280;">Início</a> 
+    <span style="margin: 0 8px; color: #d1d5db;">/</span> 
+    <a href="/lab_cultural" style="text-decoration: none; color: #6b7280;">Lab Cultural</a>
+    <span style="margin: 0 8px; color: #d1d5db;">/</span> 
+    <a href="/leitura" style="text-decoration: none; color: #6b7280;">Clube de Leitura</a>
+    <span style="margin: 0 8px; color: #d1d5db;">/</span> 
+    <span style="color: #1a1a1a;">{{ livro.titulo }}</span>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="background-color: #ffffff; min-height: 75vh; padding: 4rem 15%;">
+    <div style="max-width: 850px; margin: 0 auto; display: grid; grid-template-columns: 1fr 2.5fr; gap: 50px; align-items: start;">
+        
+        <div style="text-align: center;">
+            <div style="height: 280px; background: #1a1a1a; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+                {% if livro.imagem_url %}
+                    <img src="{{ livro.imagem_url }}" alt="{{ livro.titulo }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                    <i class="fas fa-book" style="color: #F39200; font-size: 5rem;"></i>
+                {% endif %}
+            </div>
+            <div style="margin-top: 20px;">
+                <span style="background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; padding: 6px 14px; border-radius: 4px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; display: inline-block; letter-spacing: 0.05em;">
+                    {{ livro.status }}
+                </span>
+            </div>
+        </div>
+
+        <div>
+            <span style="color: #6b7280; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; tracking-wider: 0.05em;">
+                Obra Integrante do Clube
+            </span>
+            <h1 style="font-size: 2.8rem; font-weight: 900; color: #1a1a1a; margin-top: 10px; margin-bottom: 5px; line-height: 1.15;">
+                {{ livro.titulo }}
+            </h1>
+            <p style="color: #F39200; font-size: 1.3rem; font-weight: 600; margin: 0 0 30px 0;">
+                por {{ livro.autor }}
+            </p>
+
+            <div style="border-t: 1px solid #e5e7eb; padding-top: 20px; margin-top: 20px;">
+                <h3 style="font-size: 1rem; text-transform: uppercase; color: #1a1a1a; letter-spacing: 0.05em; margin-bottom: 15px;">
+                    Sinopse / Enquadramento Literário
+                </h3>
+                <div style="font-size: 1.1rem; line-height: 1.75; color: #374151; white-space: pre-line;">
+                    {{ livro.sinopse if livro.sinopse else 'De momento não foi disponibilizada nenhuma sinopse para esta obra nas plataformas do Laboratório.' }}
+                </div>
+            </div>
+
+            <div style="margin-top: 50px; border-top: 1px solid #e5e7eb; padding-top: 20px;">
+                <a href="/leitura" style="color: #1a1a1a; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;" onmouseover="this.style.color='#F39200'" onmouseout="this.style.color='#1a1a1a'">
+                    &larr; Voltar para a página do Clube
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
